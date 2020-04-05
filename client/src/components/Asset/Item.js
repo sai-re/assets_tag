@@ -1,115 +1,107 @@
-import React, {Component} from 'react';
+import React, {useState, useEffect} from 'react';
 
-class Item extends Component {
-    constructor(props) {
-        super(props);
+//global variables so drag can access values 
+let draggedItem;
 
-        this.state = {
-            tag: "",
-            tags: []
-        }
+function Item(props) {
+    const [state, updateMethod] = useState({tag: "", tags: []});
 
-        this.handleClick = this.handleClick.bind(this);
-        this.handleChange = this.handleChange.bind(this);
-        this.handleDelete = this.handleDelete.bind(this);
+    const handleClick = () => {
+        const newTag = {id: state.tag, text: state.tag};
+        const copy = [...state.tags, newTag];
+
+        if (state.tag !== "") updateMethod({tag: "", tags: copy});
     }
 
-    handleClick = () => {
-        const newTag = {id: this.state.tag, text: this.state.tag};
-        const copy = [...this.state.tags, newTag];
+    const handleChange = e => updateMethod({tag: e.target.value, tags: state.tags});
 
-        if (this.state.tag !== "") this.setState({tag: "", tags: copy});
-    }
-
-    handleChange = e => this.setState({tag: e.target.value});
-
-    handleDelete = i => {
-        const copy = [...this.state.tags];
+    const handleDelete = i => {
+        const copy = [...state.tags];
         let removed = copy.filter((elem, indx) => indx !== i);
 
-        this.setState({tags: removed});
+        updateMethod({tag: state.tag, tags: removed});
     }
 
-    onDragStart = (e, i) => {
-        this.draggedItem = this.state.tags[i];
+    const onDragStart = (e, i) => {
+        draggedItem = state.tags[i];
         e.dataTransfer.effectAllowed = "move";
         e.dataTransfer.setData("text/html", e.target.parentNode);
         e.dataTransfer.setDragImage(e.target.parentNode, 20, 20);
     };
     
-    onDragOver = i => {
-        const draggedOverItem = this.state.tags[i];
+    const onDragOver = i => {
+        const draggedOverItem = state.tags[i];
 
         // if the item is dragged over itself, ignore
-        if (this.draggedItem === draggedOverItem) return;
+        if (draggedItem === draggedOverItem) return;
         
         // filter out the currently dragged item
-        let tags = this.state.tags.filter(item => item !== this.draggedItem);
+        let tags = state.tags.filter(item => item !== draggedItem);
 
         // add the dragged item after the dragged over item
-        tags.splice(i, 0, this.draggedItem);
+        tags.splice(i, 0, draggedItem);
 
-        this.setState({tags: tags});
+        updateMethod({tag: state.tag, tags: tags});
     };
     
-    onDragEnd = () => this.draggedIdx = null;
+    const onDragEnd = () => draggedItem = null;
+    
+    useEffect(() => {
+        updateMethod({tag: "", tags: props.data.tags});
+    }, [props])
+    
+    const assets = props.data;
 
-    componentDidMount = () => this.setState({tags: this.props.data.tags});
+    return (
+        <div className="item">
+            <img src={assets.url} alt="assets.title"/>
+            <h1 className="item__title">{assets.title}</h1>
 
-    render() {
-        const assets = this.props.data;
-        
-        return (
-            <div className="item">
-                <img src={assets.url} alt="assets.title"/>
-                <h1 className="item__title">{assets.title}</h1>
-
-                <div className="item__tag-holder">
-                    <ul className="item__tag-list">
-                        {this.state.tags.map((elem, i) => (
-                            <li 
-                                className="item__tag" 
-                                key={elem.id} 
-                                onDragOver={() => this.onDragOver(i)}
+            <div className="item__tag-holder">
+                <ul className="item__tag-list">
+                    {state.tags.map((elem, i) => (
+                        <li 
+                            className="item__tag" 
+                            key={elem.id} 
+                            onDragOver={() => onDragOver(i)}
+                        >
+                            <div
+                                className="item__holder"
+                                draggable
+                                onDragStart={e => onDragStart(e, i)}
+                                onDragEnd={onDragEnd}
                             >
-                                <div
-                                    className="item__holder"
-                                    draggable
-                                    onDragStart={e => this.onDragStart(e, i)}
-                                    onDragEnd={this.onDragEnd}
-                                >
-                                    {elem.text}
-                                </div>
+                                {elem.text}
+                            </div>
 
-                                <button 
-                                    className="item__tag-del" 
-                                    onClick={() => this.handleDelete(i)}>
-                                    x
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
+                            <button 
+                                className="item__tag-del" 
+                                onClick={() => handleDelete(i)}>
+                                x
+                            </button>
+                        </li>
+                    ))}
+                </ul>
 
-                    <input 
-                        type="text" 
-                        value={this.state.tag} 
-                        onChange={this.handleChange} 
-                        placeholder="Enter new tag" 
-                        className="item__tag-input"
-                        list={`suggestions_${assets.title}`}
-                    />
+                <input 
+                    type="text" 
+                    value={state.tag} 
+                    onChange={handleChange} 
+                    placeholder="Enter new tag" 
+                    className="item__tag-input"
+                    list={`suggestions_${assets.title}`}
+                />
 
-                    <datalist id={`suggestions_${assets.title}`}>
-                        {assets.suggestions.map((elem) => (
-                            <option key={elem.id} value={elem.text} />
-                        ))}
-                    </datalist>
+                <datalist id={`suggestions_${assets.title}`}>
+                    {assets.suggestions.map((elem) => (
+                        <option key={elem.id} value={elem.text} />
+                    ))}
+                </datalist>
 
-                    <button className="item__btn" onClick={this.handleClick}>Add</button>
-                </div>
+                <button className="item__btn" onClick={handleClick}>Add</button>
             </div>
-        );
-    }
+        </div>
+    );
 }
 
 export default Item;
