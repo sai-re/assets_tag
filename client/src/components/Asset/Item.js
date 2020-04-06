@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 
 //global variables so drag can access values 
 let draggedItem;
@@ -7,29 +7,36 @@ function Item(props) {
     const [state, updateMethod] = useState({tag: "", tags: []});
 
     const handleClick = () => {
+        //create new tag from state
         const newTag = {id: state.tag, text: state.tag};
+        //create copy of state and add new tag
         const copy = [...state.tags, newTag];
-
+        //if state is not empty update state with new tags
         if (state.tag !== "") updateMethod({tag: "", tags: copy});
     }
 
     const handleChange = e => updateMethod({tag: e.target.value, tags: state.tags});
 
     const handleDelete = i => {
+        //copy state
         const copy = [...state.tags];
+        //filter out tag to be deleted
         let removed = copy.filter((elem, indx) => indx !== i);
-
+        //add updated tags to state
         updateMethod({tag: state.tag, tags: removed});
     }
 
     const onDragStart = (e, i) => {
+        //assign tag being dragged
         draggedItem = state.tags[i];
         e.dataTransfer.effectAllowed = "move";
-        e.dataTransfer.setData("text/html", e.target.parentNode);
-        e.dataTransfer.setDragImage(e.target.parentNode, 20, 20);
+        //sets the dragged item to be the parent node of the drag div
+        e.dataTransfer.setData("text/html", e.target.parentNode); //for firefox
+        e.dataTransfer.setDragImage(e.target.parentNode, 20, 20); //for chrome
     };
     
     const onDragOver = i => {
+        //get tag being dragged over
         const draggedOverItem = state.tags[i];
 
         // if the item is dragged over itself, ignore
@@ -44,12 +51,18 @@ function Item(props) {
         updateMethod({tag: state.tag, tags: tags});
     };
     
+    //reset global variable
     const onDragEnd = () => draggedItem = null;
     
+    const didMountRef = useRef(false);
     useEffect(() => {
-        updateMethod({tag: "", tags: props.data.tags});
-    }, [props])
-    
+        //run update only on mount, preserves values when filtered
+        if (!didMountRef.current) {
+            didMountRef.current = true;
+            updateMethod({tag: "", tags: props.data.tags});
+        }
+    }, [props]);
+
     const assets = props.data;
 
     return (
@@ -74,11 +87,7 @@ function Item(props) {
                                 {elem.text}
                             </div>
 
-                            <button 
-                                className="item__tag-del" 
-                                onClick={() => handleDelete(i)}>
-                                x
-                            </button>
+                            <button className="item__tag-del" onClick={() => handleDelete(i)}>x</button>
                         </li>
                     ))}
                 </ul>
