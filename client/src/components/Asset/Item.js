@@ -75,7 +75,7 @@ function Item(props) {
                     {state.tags.map((elem, i) => (
                         <li 
                             className="item__tag" 
-                            key={elem.id} 
+                            key={`${elem.id}_${i}`}  
                             onDragOver={() => onDragOver(i)}
                         >
                             <div
