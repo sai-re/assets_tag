@@ -67,7 +67,7 @@ function Item(props) {
 
     return (
         <div className="item">
-            <img src={assets.url} alt="assets.title"/>
+            <img src={assets.url} alt="assets.title" draggable="false"/>
             <h1 className="item__title">{assets.title}</h1>
 
             <div className="item__tag-holder">
