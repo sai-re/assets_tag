@@ -14,12 +14,13 @@ function Assets() {
                 //extract ids from obj into array
                 const dataArr = elem.tags.map(item => item.id);
                 const stateArr = state.tags.map(item => item.id);
+                console.log("data", dataArr);
+                console.log("state", stateArr);
+
                 //check if tag is found in asset
                 const doesTagExist = stateArr.some(item => dataArr.includes(item));
                 //if found, return asset 
-                if (doesTagExist) {
-                    return <Item key={elem.title} data={elem} />;
-                }
+                if (doesTagExist) return <Item key={elem.title} data={elem} />;
             })
         } else {
             return data.assets.map(elem => (<Item key={elem.title} data={elem} /> ));
@@ -48,7 +49,7 @@ function Assets() {
                 <h3>Add tags to filter</h3>
                 <ul className="asset__tag-list">
                     {state.tags.map((elem, i) => (
-                        <li className="asset__tag" key={elem.id} >
+                        <li className="asset__tag" key={`${elem.id}_${i}`} >
                             {elem.text}
 
                             <button className="asset__tag-del" onClick={() => handleDelete(i)}>x</button>

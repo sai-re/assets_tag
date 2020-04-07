@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 
 //global variables so drag can access values 
 let draggedItem;
@@ -54,14 +54,10 @@ function Item(props) {
     //reset global variable
     const onDragEnd = () => draggedItem = null;
     
-    const didMountRef = useRef(false);
     useEffect(() => {
-        //run update only on mount, preserves values when filtered
-        if (!didMountRef.current) {
-            didMountRef.current = true;
-            updateMethod({tag: "", tags: props.data.tags});
-        }
-    }, [props]);
+        console.log("item rendered")
+        updateMethod({tag: "", tags: props.data.tags});
+    }, [props.data.tags]);
 
     const assets = props.data;
 
@@ -73,7 +69,7 @@ function Item(props) {
             <div className="item__tag-holder">
                 <ul className="item__tag-list">
                     {state.tags.map((elem, i) => (
-                        <li 
+                        <li
                             className="item__tag" 
                             key={`${elem.id}_${i}`}  
                             onDragOver={() => onDragOver(i)}
