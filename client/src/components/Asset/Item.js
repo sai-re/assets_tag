@@ -55,14 +55,15 @@ function Item(props) {
     const onDragEnd = () => draggedItem = null;
     
     useEffect(() => {
-        console.log("item rendered")
+        console.log("item rendered");
         updateMethod({tag: "", tags: props.data.tags});
     }, [props.data.tags]);
 
     const assets = props.data;
 
     return (
-        <div className="item">
+        //if filter tags did not match hide item
+        <div className="item" style={{ display: props.hide === false ? 'none' : 'block' }}>
             <img src={assets.url} alt="assets.title" draggable="false"/>
             <h1 className="item__title">{assets.title}</h1>
 

@@ -1,29 +1,26 @@
 import React, {useState} from 'react';
 import Item from './Item'
-import data from '../../data.json';
 
 import './Assets.scss'
 
-function Assets() {
+function Assets(props) {
     const [state, updateMethod] = useState({tag: "", tags: []});
 
     const printList = () => {
         //if tag has been added        
         if (state.tags.length > 0) {
-            return data.assets.map(elem => {
+            return props.data.map(elem => {
                 //extract ids from obj into array
                 const dataArr = elem.tags.map(item => item.id);
                 const stateArr = state.tags.map(item => item.id);
-                console.log("data", dataArr);
-                console.log("state", stateArr);
 
                 //check if tag is found in asset
                 const doesTagExist = stateArr.some(item => dataArr.includes(item));
-                //if found, return asset 
-                if (doesTagExist) return <Item key={elem.title} data={elem} />;
+                //if found, return asset with bool passed on to indicate if it was matched
+                return <Item key={elem.title} data={elem} hide={doesTagExist}/>;
             })
         } else {
-            return data.assets.map(elem => (<Item key={elem.title} data={elem} /> ));
+            return props.data.map(elem => (<Item key={elem.title} data={elem} /> ));
         }
     };
 

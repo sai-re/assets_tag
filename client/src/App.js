@@ -1,11 +1,11 @@
 import React from 'react';
-import Assets from './components/Asset/Assets'
+import FetchData from './components/Asset/FetchData';
 import './App.css';
 
 function App() {
 	return ( 
 		<div className="App">
-			<Assets />
+			<FetchData />
 		</div>
 	);
 }
